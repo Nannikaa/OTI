@@ -28,4 +28,19 @@ public class Lasku {
     public boolean getMaksettu() {
         return maksettu;
     }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setVarausId(int varausId) {
+        this.varausId = varausId;
+    }
+
+    public void setSumma(float summa) {
+        this.summa = summa;
+    }
+
+    public void setMaksettu(Boolean maksettu) {
+        this.maksettu = maksettu;
+    }
 }
