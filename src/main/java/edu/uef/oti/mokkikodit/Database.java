@@ -192,8 +192,8 @@ public class Database {
       pstmt.setString(1, nimi);
       ResultSet rs = pstmt.executeQuery();
       if (rs.next()) {
-        return new Asiakas(rs.getInt("asiakas_id"), rs.getString("nimi"), rs.getString("email"),
-            rs.getString("puhelin"));
+        return new Asiakas(rs.getInt("asiakas_id"), rs.getString("nimi"), rs.getString("puhelin"),
+            rs.getString("sahkoposti"), rs.getString("osoite"), rs.getString("hlotunnus"), rs.getBoolean(7));
       }
     } catch (SQLException e) {
       System.out.println("Virhe asiakasta haettaessa: " + e.getMessage());
