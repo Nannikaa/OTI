@@ -1,4 +1,4 @@
-package edu.uef.oti.mokkikodit.data;
+package edu.uef.oti.mokkikodit;
 
 import java.util.Scanner;
 

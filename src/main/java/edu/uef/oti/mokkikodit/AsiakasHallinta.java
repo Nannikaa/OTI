@@ -1,4 +1,6 @@
-package edu.uef.oti.mokkikodit.data;
+package edu.uef.oti.mokkikodit;
+
+import edu.uef.oti.mokkikodit.data.Asiakas;
 
 import java.util.ArrayList;
 import java.util.List;
