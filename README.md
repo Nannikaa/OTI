@@ -2,7 +2,7 @@
 
 #Miten ladata projekti
 
-#1. Paina '<Code>' ja lataa zip
+#1. Paina 'Code' ja lataa zip
 
 #2. Pura johonkin kansioon
 
