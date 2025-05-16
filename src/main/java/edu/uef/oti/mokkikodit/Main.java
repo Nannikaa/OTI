@@ -1,5 +1,8 @@
 package edu.uef.oti.mokkikodit;
 
+import edu.uef.oti.mokkikodit.Raportti;
+
+
 import java.util.Scanner;
 
 public class Main {
@@ -8,11 +11,13 @@ public class Main {
         LaskujenHallinta lhallinta = new LaskujenHallinta();
         Scanner scanner = new Scanner(System.in);
 
+        Raportti r = new Raportti();
+
         while (true) {
             System.out.println("-------------------");
             System.out.println("Päävalikko");
             System.out.println("Valitse numerolla tehtävä");
-            System.out.println("\n1. Lisää asiakas\n2. Lista asiakkaista\n3. Päivitä asiakastietoja\n4. Poista asiakkaan tiedot\n5. Poistu");
+            System.out.println("\n1. Lisää asiakas\n2. Lista asiakkaista\n3. Päivitä asiakastietoja\n4. Poista asiakkaan tiedot\n5. Tulosta raportti\n6. Poistu");
             int valinta = Integer.parseInt(scanner.nextLine());
 
             switch (valinta) {
@@ -62,9 +67,13 @@ public class Main {
 
 
                 case 5:
+                    r.getRaportti();
+
+                case 6:
                     System.out.println("Poistutaan...");
                     scanner.close();
                     return;
+
 
                 default:
                     System.out.println("Väärä toiminto.");
