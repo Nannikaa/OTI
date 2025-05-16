@@ -2,22 +2,22 @@ package edu.uef.oti.mokkikodit.data;
 
 import java.sql.Date;
 public class Varaus {
-    private int id;
+    private int varausId;
     private int asiakasId;
     private int mokkiId;
-    private Date AlkuPvm;
-    private Date LoppuPvm;
+    private Date alkuPvm;
+    private Date loppuPvm;
 
     public Varaus(int id, int asiakasId, int mokkiId, Date alkuPvm, Date loppuPvm) {
-        this.id = id;
+        this.varausId = varausId;
         this.asiakasId = asiakasId;
         this.mokkiId = mokkiId;
-        this.AlkuPvm = alkuPvm;
-        this.LoppuPvm = loppuPvm;
+        this.alkuPvm = alkuPvm;
+        this.loppuPvm = loppuPvm;
     }
 
-    public int getId() {
-        return id;
+    public int getVarausId() {
+        return varausId;
     }
 
     public int getAsiakasId() {
@@ -29,10 +29,30 @@ public class Varaus {
     }
 
     public Date getAlkuPvm() {
-        return AlkuPvm;
+        return alkuPvm;
     }
 
     public Date getLoppuPvm() {
-        return LoppuPvm;
+        return loppuPvm;
+    }
+
+    public void setVarausId(int varausId) {
+        this.varausId = varausId;
+    }
+
+    public void setAsiakasId(int asiakasId) {
+        this.asiakasId = asiakasId;
+    }
+
+    public void setMokkiId(int mokkiId) {
+        this.mokkiId = mokkiId;
+    }
+
+    public void setAlkuPvm(Date alkuPvm) {
+        this.alkuPvm = alkuPvm;
+    }
+
+    public void setLoppuPvm(Date loppuPvm) {
+        this.loppuPvm = loppuPvm;
     }
 }
