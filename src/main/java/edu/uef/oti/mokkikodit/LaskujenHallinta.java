@@ -10,7 +10,7 @@ public class LaskujenHallinta {
     private int nextId = 1;
 
     public void lisaaLasku(int varausId, float summa, boolean maksettu) {
-        Lasku lasku = new Lasku(nextId++, varausId, summa, maksettu);
+        Lasku lasku = new Lasku(nextId++, varausId, summa, maksettu, null);
         laskut.add(lasku);
         System.out.println("Lasku lisätty: " + lasku);
 

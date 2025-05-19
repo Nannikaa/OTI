@@ -34,4 +34,16 @@ public class Mokki {
     public String getKuvaus() {
         return kuvaus;
     }
+
+    public String toString() {
+        return
+                "ID: " + mokkiId +
+                ", nimi: " + nimi +
+                ", sijainti: " + sijainti +
+                ", hintaPerYo: " + hintaPerYo +
+                ", kuvaus: " + kuvaus;
+    }
 }
+
+
+

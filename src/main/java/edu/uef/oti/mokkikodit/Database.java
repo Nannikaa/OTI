@@ -59,6 +59,7 @@ public class Database {
                 varaus_id INTEGER,
                 summa REAL,
                 maksettu BOOLEAN,
+                maksuPvm DATE,
                 FOREIGN KEY (varaus_id) REFERENCES Varaus(varaus_id)
             );
         """;
@@ -103,15 +104,14 @@ public class Database {
     }
   }
 
-  public static boolean addVaraus(int asiakas_id, int mokki_id, Date alku_pvm, Date loppu_pvm) {
+  public static String addVaraus(int asiakas_id, int mokki_id, Date alku_pvm, Date loppu_pvm) {
     if (!isMokkiVapaa(mokki_id, alku_pvm, loppu_pvm)) {
-      System.out.println("Mökki ei ole vapaa valitulla aikavälillä.");
-      return false;
+      return "Mökki ei ole vapaa valitulla aikavälillä.";
+
     }
 
     if (!doesAsiakasExist(asiakas_id) || !doesMokkiExist(mokki_id)) {
-      System.out.println("Asiakasta tai mökkiä ei löydy.");
-      return false;
+      return ("Asiakasta tai mökkiä ei löydy.");
     }
 
     String sql =
@@ -122,10 +122,9 @@ public class Database {
       pstmt.setDate(3, alku_pvm);
       pstmt.setDate(4, loppu_pvm);
       pstmt.executeUpdate();
-      return true;
+      return null;
     } catch (SQLException e) {
-      System.out.println("Virhe varausta lisätessä: " + e.getMessage());
-      return false;
+      return "Virhe varausta lisätessä: " + e.getMessage();
     }
   }
 
@@ -143,32 +142,51 @@ public class Database {
     return false;
   }
 
-    public static boolean doesMokkiExist(int mokki_id) {
-        String sql = "SELECT COUNT(*) AS count FROM Mokki WHERE mokki_id = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setInt(1, mokki_id);
-        ResultSet rs = pstmt.executeQuery();
-        if (rs.next()) {
-            return rs.getInt("count") > 0;
-        }
-        } catch (SQLException e) {
-        System.out.println("Virhe tarkistettaessa mökkiä: " + e.getMessage());
-        }
-        return false;
+  public static boolean doesMokkiExist(int mokki_id) {
+    String sql = "SELECT COUNT(*) AS count FROM Mokki WHERE mokki_id = ?";
+    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setInt(1, mokki_id);
+      ResultSet rs = pstmt.executeQuery();
+      if (rs.next()) {
+        return rs.getInt("count") > 0;
+      }
+    } catch (SQLException e) {
+      System.out.println("Virhe tarkistettaessa mökkiä: " + e.getMessage());
     }
+    return false;
+  }
 
-  public static boolean addLasku(int varaus_id, double summa, boolean maksettu) {
-    String sql = "INSERT INTO Lasku (varaus_id, summa, maksettu) VALUES (?, ?, ?)";
+  public static boolean addLasku(int varaus_id, double summa, boolean maksettu, Date maksuPvm) {
+    if (!doesVarausExist(varaus_id)) {
+      System.out.println("Varausta ei löydy.");
+      return false;
+    }
+    String sql = "INSERT INTO Lasku (varaus_id, summa, maksettu, maksuPvm) VALUES (?, ?, ?, ?)";
     try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, varaus_id);
       pstmt.setDouble(2, summa);
       pstmt.setBoolean(3, maksettu);
+      pstmt.setDate(4, maksuPvm);
       pstmt.executeUpdate();
       return true;
     } catch (SQLException e) {
       System.out.println("Virhe laskua lisätessä: " + e.getMessage());
       return false;
     }
+  }
+
+  public static boolean doesVarausExist(int varaus_id) {
+    String sql = "SELECT COUNT(*) AS count FROM Varaus WHERE varaus_id = ?";
+    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setInt(1, varaus_id);
+      ResultSet rs = pstmt.executeQuery();
+      if (rs.next()) {
+        return rs.getInt("count") > 0;
+      }
+    } catch (SQLException e) {
+      System.out.println("Virhe tarkistettaessa varausta: " + e.getMessage());
+    }
+    return false;
   }
 
   public static Mokki getMokkiBynimi(String nimi) {
@@ -193,7 +211,8 @@ public class Database {
       ResultSet rs = pstmt.executeQuery();
       if (rs.next()) {
         return new Asiakas(rs.getInt("asiakas_id"), rs.getString("nimi"), rs.getString("puhelin"),
-            rs.getString("sahkoposti"), rs.getString("osoite"), rs.getString("hlotunnus"), rs.getBoolean(7));
+            rs.getString("sahkoposti"), rs.getString("osoite"), rs.getString("hlotunnus"),
+            rs.getBoolean(7));
       }
     } catch (SQLException e) {
       System.out.println("Virhe asiakasta haettaessa: " + e.getMessage());
@@ -269,29 +288,29 @@ public class Database {
     }
   }
 
-    public static boolean deleteAsiakas(int asiakas_id) {
-        String sql = "DELETE FROM Asiakas WHERE asiakas_id = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setInt(1, asiakas_id);
-        pstmt.executeUpdate();
-        return true;
-        } catch (SQLException e) {
-        System.out.println("Virhe asiakasta poistettaessa: " + e.getMessage());
-        return false;
-        }
+  public static boolean deleteAsiakas(int asiakas_id) {
+    String sql = "DELETE FROM Asiakas WHERE asiakas_id = ?";
+    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setInt(1, asiakas_id);
+      pstmt.executeUpdate();
+      return true;
+    } catch (SQLException e) {
+      System.out.println("Virhe asiakasta poistettaessa: " + e.getMessage());
+      return false;
     }
+  }
 
-    public static boolean deleteLasku(int lasku_id) {
-        String sql = "DELETE FROM Lasku WHERE lasku_id = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setInt(1, lasku_id);
-        pstmt.executeUpdate();
-        return true;
-        } catch (SQLException e) {
-        System.out.println("Virhe laskua poistettaessa: " + e.getMessage());
-        return false;
-        }
+  public static boolean deleteLasku(int lasku_id) {
+    String sql = "DELETE FROM Lasku WHERE lasku_id = ?";
+    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setInt(1, lasku_id);
+      pstmt.executeUpdate();
+      return true;
+    } catch (SQLException e) {
+      System.out.println("Virhe laskua poistettaessa: " + e.getMessage());
+      return false;
     }
+  }
 
   public static boolean isMokkiVapaa(int mokki_id, Date alku_pvm, Date loppu_pvm) {
     String sql = """
@@ -304,7 +323,7 @@ public class Database {
       pstmt.setDate(3, loppu_pvm);
       ResultSet rs = pstmt.executeQuery();
       if (rs.next()) {
-        return rs.getInt ("count") == 0;
+        return rs.getInt("count") == 0;
       }
     } catch (SQLException e) {
       System.out.println("Virhe tarkistettaessa mökin varaustilannetta: " + e.getMessage());
@@ -318,8 +337,9 @@ public class Database {
       ResultSet rs = pstmt.executeQuery();
       List<Varaus> varaukset = new ArrayList<>();
       while (rs.next()) {
-        varaukset.add(new Varaus(rs.getInt("varaus_id"), rs.getInt("asiakas_id"),
-            rs.getInt("mokki_id"), rs.getDate("alku_pvm"), rs.getDate("loppu_pvm")));
+        varaukset.add(
+            new Varaus(rs.getInt("varaus_id"), rs.getInt("asiakas_id"), rs.getInt("mokki_id"),
+                rs.getDate("alku_pvm"), rs.getDate("loppu_pvm")));
       }
       return varaukset;
     } catch (SQLException e) {
@@ -327,6 +347,40 @@ public class Database {
     }
     return null;
   }
+
+  public static List<Asiakas> getAllAsiakkaat() {
+    String sql = "SELECT * FROM Asiakas";
+    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      ResultSet rs = pstmt.executeQuery();
+      List<Asiakas> asiakkaat = new ArrayList<>();
+      while (rs.next()) {
+        asiakkaat.add(
+            new Asiakas(rs.getInt("asiakas_id"), rs.getString("nimi"), rs.getString("puhelin"),
+                rs.getString("email"), null, null, false));
+      }
+      return asiakkaat;
+    } catch (SQLException e) {
+      System.out.println("Virhe asiakkaita haettaessa: " + e.getMessage());
+    }
+    return null;
+  }
+
+  public static List<Mokki> getAllMokit() {
+    String sql = "SELECT * FROM Mokki";
+    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      ResultSet rs = pstmt.executeQuery();
+      List<Mokki> mokit = new ArrayList<>();
+      while (rs.next()) {
+        mokit.add(new Mokki(rs.getInt("mokki_id"), rs.getString("nimi"), rs.getString("sijainti"),
+            rs.getFloat("hinta_per_yö"), rs.getString("kuvaus")));
+      }
+      return mokit;
+    } catch (SQLException e) {
+      System.out.println("Virhe mökkejä haettaessa: " + e.getMessage());
+    }
+    return null;
+  }
+
 
   public static List<Varaus> getVarauksetAikavalilta(Date alku_pvm, Date loppu_pvm) {
     String sql = """
@@ -339,8 +393,9 @@ public class Database {
       ResultSet rs = pstmt.executeQuery();
       List<Varaus> varaukset = new ArrayList<>();
       while (rs.next()) {
-        varaukset.add(new Varaus(rs.getInt("varaus_id"), rs.getInt("asiakas_id"),
-            rs.getInt("mokki_id"), rs.getDate("alku_pvm"), rs.getDate("loppu_pvm")));
+        varaukset.add(
+            new Varaus(rs.getInt("varaus_id"), rs.getInt("asiakas_id"), rs.getInt("mokki_id"),
+                rs.getDate("alku_pvm"), rs.getDate("loppu_pvm")));
       }
       return varaukset;
     } catch (SQLException e) {
@@ -355,8 +410,8 @@ public class Database {
       ResultSet rs = pstmt.executeQuery();
       List<Lasku> laskut = new ArrayList<>();
       while (rs.next()) {
-        laskut.add(new Lasku(rs.getInt("lasku_id"), rs.getInt("varaus_id"),
-            rs.getFloat("summa"), rs.getBoolean("maksettu")));
+        laskut.add(new Lasku(rs.getInt("lasku_id"), rs.getInt("varaus_id"), rs.getFloat("summa"),
+            rs.getBoolean("maksettu"), rs.getDate("maksuPvm")));
       }
       return laskut;
     } catch (SQLException e) {
@@ -375,5 +430,49 @@ public class Database {
       System.out.println("Virhe laskua merkitessä maksetuksi: " + e.getMessage());
       return false;
     }
+  }
+
+  public static List<String> getVarauksetRaportti(Date alkuPvm, Date loppuPvm) {
+    String sql = """
+        SELECT Varaus.varaus_id, Varaus.asiakas_id, Varaus.mokki_id,
+               Varaus.alku_pvm, Varaus.loppu_pvm,
+               COALESCE(SUM(Lasku.summa), 0) AS total_revenue
+        FROM Varaus
+        LEFT JOIN Lasku ON Varaus.varaus_id = Lasku.varaus_id
+        WHERE NOT (Varaus.loppu_pvm < ? OR Varaus.alku_pvm > ?)
+        GROUP BY Varaus.varaus_id, Varaus.asiakas_id, Varaus.mokki_id, Varaus.alku_pvm, Varaus.loppu_pvm
+        """;
+    List<String> raportti = new ArrayList<>();
+    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setDate(1, alkuPvm);
+      pstmt.setDate(2, loppuPvm);
+
+      ResultSet rs = pstmt.executeQuery();
+      double totalRevenue = 0;
+      while (rs.next()) {
+        int varausId = rs.getInt("varaus_id");
+        int asiakasId = rs.getInt("asiakas_id");
+        int mokkiId = rs.getInt("mokki_id");
+        Date varausAlku = rs.getDate("alku_pvm");
+        Date varausLoppu = rs.getDate("loppu_pvm");
+        double revenue = rs.getDouble("total_revenue");
+
+        Date effectiveStart = varausAlku.after(alkuPvm) ? varausAlku : alkuPvm;
+        Date effectiveEnd = varausLoppu.before(loppuPvm) ? varausLoppu : loppuPvm;
+
+        long days = 0;
+        if (!effectiveStart.after(effectiveEnd)) {
+          days = (effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24);
+        }
+
+        totalRevenue += revenue;
+        raportti.add(
+            "Varaus ID: " + varausId + ", Asiakas ID: " + asiakasId + ", Mökki ID: " + mokkiId + ", Päivät: " + days + ", Tulo: " + revenue + "€");
+      }
+      raportti.add("Yhteensä tuloja: " + totalRevenue + "€");
+    } catch (SQLException e) {
+      System.out.println("Virhe raporttia haettaessa: " + e.getMessage());
+    }
+    return raportti;
   }
 }
