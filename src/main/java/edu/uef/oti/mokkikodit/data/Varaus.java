@@ -8,7 +8,7 @@ public class Varaus {
     private Date alkuPvm;
     private Date loppuPvm;
 
-    public Varaus(int id, int asiakasId, int mokkiId, Date alkuPvm, Date loppuPvm) {
+    public Varaus(int varausId, int asiakasId, int mokkiId, Date alkuPvm, Date loppuPvm) {
         this.varausId = varausId;
         this.asiakasId = asiakasId;
         this.mokkiId = mokkiId;
@@ -55,4 +55,14 @@ public class Varaus {
     public void setLoppuPvm(Date loppuPvm) {
         this.loppuPvm = loppuPvm;
     }
+
+    public String toString() {
+        return
+                "ID: " + varausId +
+                ", Asiakas ID: " + asiakasId +
+                ", Mokki ID: " + mokkiId +
+                ", Alku Pvm: " + alkuPvm +
+                ", Loppu Pvm: " + loppuPvm;
+    }
+
 }
